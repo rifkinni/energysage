@@ -1,0 +1,13 @@
+{
+  "first_name": "Alice",
+  "last_name": "Jones",
+  "email": "ajones@example.com",
+  "electricity_usage_kwh": 10200,
+  "old_roof": true,
+  "property_address": {
+    "street": "100 Beacon St",
+    "city": "Boston",
+    "postal_code": "02161",
+    "state_code": "MA"
+  }
+}
