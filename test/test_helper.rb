@@ -11,3 +11,8 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 end
+
+def unique_email
+  # use datetime to avoid email collisions
+  DateTime.now.strftime('%Q') + "@example.com"
+end
