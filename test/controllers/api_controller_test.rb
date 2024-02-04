@@ -23,4 +23,32 @@ class ApiControllerTest < ActionDispatch::IntegrationTest
     get '/customer/fake-user-id'
     assert_response :not_found
   end
+
+  test "successfully creates a user" do
+    expected = @user_json.merge({"email" => unique_email })
+
+    post '/customer', params: expected
+    assert_response :ok
+
+    actual = JSON.parse(response.body).except("id") # we don't know the random uuid, just remove it
+    assert_equal expected, actual
+  end
+
+  test "returns a 409 when creating a user with an email collision" do
+    post '/customer', params: @user_json
+    assert_response 409
+  end
+
+  test "returns a 400 when creating a user if required data is missing" do
+    post '/customer', params: @user_json.except("email")
+    assert_response 400
+  end
+
+  test "defaults optional data when creating a user" do
+    post '/customer', params: @user_json.merge({"email" => unique_email }).except("electricity_usage_kwh")
+    assert_response :ok
+
+    actual = JSON.parse(response.body)
+    assert_equal 0, actual["electricity_usage_kwh"]
+  end
 end
