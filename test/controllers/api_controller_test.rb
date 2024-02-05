@@ -51,4 +51,46 @@ class ApiControllerTest < ActionDispatch::IntegrationTest
     actual = JSON.parse(response.body)
     assert_equal 0, actual["electricity_usage_kwh"]
   end
+
+  test "successfully updates customer data" do
+    patch '/customer/088242aa-1805-450a-a4ea-f1f392b330f4', params: {first_name: "Nicole"}
+    assert_response :ok
+
+    expected = @user_json.merge({"first_name" => "Nicole", "id" => "088242aa-1805-450a-a4ea-f1f392b330f4" })
+    actual = JSON.parse(response.body)
+    assert_equal expected, actual
+  end
+
+  test "returns a 404 when updating a user if the id is not found" do
+    patch '/customer/fake-user-id', params: @user_json
+    assert_response :not_found
+  end
+
+  test "returns a 409 when updating a user with an email collision" do
+    #create a new test user with a unique email
+    Customer.create(
+      email: "collision.test@example.com",
+      customer_id: "my-test-id",
+      first_name: "Jane",
+      last_name: "Doe",
+      old_roof: false,
+      street_address: "100 Beacon St",
+      city: "Boston",
+      postal_code: "02161",
+      state_code: "MA"
+    )
+
+    # update our default test user with the same email as the customer we just created
+    patch '/customer/088242aa-1805-450a-a4ea-f1f392b330f4', params: {"email" => "collision.test@example.com"}
+    assert_response 409
+  end
+
+  test "ignores email collision if email matches existing customer_id" do
+    patch '/customer/088242aa-1805-450a-a4ea-f1f392b330f4', params: @user_json
+    assert_response :ok
+
+    expected = @user_json.merge("id" => "088242aa-1805-450a-a4ea-f1f392b330f4" )
+    actual = JSON.parse(response.body)
+    assert_equal expected, actual
+  end
 end

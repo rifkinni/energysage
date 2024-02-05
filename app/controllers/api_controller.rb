@@ -14,6 +14,20 @@ class ApiController < ApplicationController
     customer.valid? ? (render json: customer, status: :ok) : render_400
   end
 
+  def update
+    customer = Customer.find_by(customer_id: params[:customer_id])
+    render_404 && return if customer.nil?
+
+    #check for email collisions
+    if params[:email].present?
+      existing = Customer.find_by(email: params[:email])
+      render_409 && return if existing.present? && existing != customer
+    end
+
+    customer.update(customer_param_map(params))
+    render json: customer, status: :ok, message: "Customer Updated"
+  end
+
   private
 
   def customer_param_map(params)

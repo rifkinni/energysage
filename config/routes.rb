@@ -4,4 +4,5 @@ Rails.application.routes.draw do
 
   get '/customer/:customer_id', to: 'api#fetch'
   post '/customer', to: 'api#create'
+  patch '/customer/:customer_id', to: 'api#update'
 end
